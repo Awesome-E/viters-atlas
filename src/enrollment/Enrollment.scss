@@ -1,0 +1,72 @@
+h1.enrollment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  button {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    outline-offset: 2px;
+    margin: 0;
+    cursor: pointer;
+    font: inherit;
+    span {
+      color: #888;
+    }
+    &.selected span {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-decoration-skip-ink: none;
+    }
+    color: inherit;
+    &:active > * {
+      opacity: 0.5;
+    }
+    &:disabled {
+      cursor: wait;
+      opacity: 0.4;
+    }
+  }
+  select {
+    font-family: inherit;
+    font-size: 16px;
+    padding: 2px 4px;
+  }
+}
+
+.classes-grid {
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fill, 240px);
+  gap: 20px;
+  max-width: 1040px;
+  margin: 24px auto;
+  justify-items: center;
+  justify-content: center;
+  > .course {
+    background-color: var(--col-accent, #666);
+    color: var(--col-text, white);
+    padding: 16px 20px;
+    max-width: 300px;
+    width: 100%;
+    h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+    p {
+      margin: 0;
+    }
+    &:not(.status-open) {
+      background-color: transparent;
+      border: 3px dashed var(--col-accent, #666);
+      padding: 13px 17px;
+      color: inherit;
+    }
+  }
+
+  + p {
+    text-align: center;
+  }
+}

@@ -1,0 +1,102 @@
+@mixin dark($bg: #ddd) {
+  --bg: #{$bg};
+  color: black;
+}
+
+@mixin light($bg: #666) {
+  --bg: #{$bg};
+  color: white;
+}
+
+.slant-wrapper {
+  @include dark;
+  --height: 24px;
+  --skew: 3px;
+  background: var(--bg);
+  display: inline-flex;
+  align-items: center;
+  margin-inline: calc(var(--skew) * 2);
+  position: relative;
+  height: var(--height);
+  box-sizing: border-box;
+
+  &::before,
+  &::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    box-sizing: border-box;
+    top: 0;
+    right: 100%;
+    height: var(--height);
+    border-style: solid;
+    border-width: calc(var(--height) / 2) var(--skew);
+    border-color: #0000 var(--bg) var(--bg) #0000;
+    z-index: 1;
+  }
+
+  &::after {
+    left: 100%;
+    right: unset;
+    border-color: var(--bg) #0000 #0000 var(--bg);
+  }
+
+  &.invert {
+    @include light;
+  }
+  @media (prefers-color-scheme: dark) {
+    @include light(#444);
+    &.invert {
+      @include dark(#aaa);
+    }
+  }
+
+  > :is(input, select, span, button, a) {
+    border: none;
+    background: none;
+    padding: 0 6px;
+    color: inherit;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    -webkit-tap-highlight-color: #0000;
+  }
+
+  > input {
+    padding-inline: 4px;
+  }
+
+  > :is(button, a) {
+    display: inline-block;
+    text-align: center;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
+    }
+    &:active {
+      opacity: 0.5;
+    }
+    &:disabled {
+      cursor: wait;
+      opacity: 0.4;
+    }
+
+    &:not(.padded) {
+      padding: 0 0 0.5px;
+    }
+
+    i.fa:first-child:last-child {
+      width: 20px;
+    }
+  }
+
+  > span {
+    font-size: 16px;
+    font-weight: normal;
+  }
+
+  &:has(:not(button):focus) {
+    filter: drop-shadow(0 0 2px #2265b8);
+  }
+}

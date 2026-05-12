@@ -1,0 +1,84 @@
+.meal-header {
+  .meal {
+    font-family: inherit;
+    font-size: 18px;
+    padding: 2px 4px;
+  }
+  button {
+    display: contents;
+    font: inherit;
+    span {
+      color: #888;
+    }
+    &.selected span {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-decoration-skip-ink: none;
+    }
+    color: inherit;
+    &:disabled {
+      cursor: wait;
+    }
+  }
+}
+
+.menu-wrapper:not(:empty) {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.station-name {
+  border-left: 4px solid;
+  margin-block: 0.5em;
+  font-size: 1.25em;
+  padding-left: 0;
+  border-left: none;
+  border: solid;
+  border-width: 4px;
+  min-width: min(350px, 100%);
+  margin: 0.5em 0 0;
+  display: flex;
+  padding: 2px 6px;
+  color: white;
+  border-color: transparent;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:first-child {
+    margin-top: 0.25em;
+  }
+  &.collapsed {
+    + .station-contents {
+      display: none;
+    }
+    &::after {
+      content: "+";
+    }
+  }
+  &::after {
+    content: "\002212";
+    position: relative;
+    top: -2px;
+    display: inline-flex;
+    margin-inline: auto 4px;
+    transform: scale(1.2);
+  }
+  &:active {
+    color: #fffa;
+  }
+}
+.station-contents {
+  padding: 4px 8px;
+  border-width: 0 4px 4px;
+  border-style: solid;
+  min-width: min(350px, 100%);
+  max-width: 100%;
+}
+.menu-item {
+  margin: 4px 0;
+  width: fit-content;
+  max-width: 100%;
+}

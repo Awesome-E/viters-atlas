@@ -1,0 +1,198 @@
+.reservation-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  input {
+    padding: 2px 4px;
+  }
+}
+
+.spaces-wrapper {
+  margin: auto;
+  min-width: min(375px, 100%);
+  &:not(:empty) {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .marker {
+    padding: 2px 4px;
+    background-color: #666;
+    color: white;
+    width: 50px;
+    font-weight: bold;
+    text-align: center;
+    user-select: none;
+    -webkit-user-select: none;
+    text-decoration: none;
+    &[data-name="ALP"] {
+      background-color: #368e0b;
+    }
+    &[data-name="SCI"] {
+      background-color: #04707c;
+    }
+    &[data-name="LNG"] {
+      background-color: #8f4c00;
+    }
+    &[data-name="GSC"] {
+      background-color: #8a1f70;
+    }
+    &[data-name="MRC"] {
+      background-color: #4d007a;
+    }
+    &[data-name="GML"] {
+      background-color: #35549c;
+    }
+    &[data-name="CSL"] {
+      background-color: #002fa4;
+    }
+    @media (prefers-color-scheme: light) {
+      &[data-name="ALP"] {
+        background-color: #3ba008;
+      }
+      &[data-name="SCI"] {
+        background-color: #058694;
+      }
+      &[data-name="LNG"] {
+        background-color: #d37000;
+      }
+      &[data-name="GSC"] {
+        background-color: #b32990;
+      }
+      &[data-name="MRC"] {
+        background-color: #6e00ad;
+      }
+      &[data-name="GML"] {
+        background-color: #4168c3;
+      }
+      &[data-name="CSL"] {
+        background-color: #003dd6;
+      }
+    }
+    &.small {
+      width: 16px;
+      height: 16px;
+      border-radius: 16px;
+      border: 0.5px solid #aaaa;
+      &:not(:last-child) {
+        margin-left: -8px;
+      }
+    }
+    &:is(a) {
+      transition: opacity 0.2s;
+      &:hover {
+        opacity: 0.8;
+      }
+      &:active {
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+.token-expiry {
+  text-align: center;
+  margin-block: 12px;
+  font-size: 18px;
+  font-style: italic;
+}
+
+.space-name {
+  background-color: #8884;
+  border-left: 4px solid;
+  margin-block: 0.5em;
+  font-size: 1.25em;
+  padding-left: 0;
+  border-left: none;
+  border: solid;
+  border-width: 4px;
+  min-width: min(375px, 100%);
+  margin: 0.5em 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 6px;
+  border-color: transparent;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:first-child {
+    margin-top: 0.25em;
+  }
+  &.collapsed {
+    + .space-contents {
+      display: none;
+    }
+    &::after {
+      content: "+";
+    }
+  }
+  > * {
+    transition: opacity 0.2s;
+  }
+  &::after {
+    content: "\002212";
+    position: relative;
+    top: -2px;
+    display: inline-flex;
+    margin-inline: auto 4px;
+    transform: scale(1.2);
+    transition:
+      color 0.2s,
+      opacity 0.2s;
+  }
+  &:active > *,
+  &:active::after {
+    opacity: 0.7;
+  }
+  .time {
+    width: 96px;
+  }
+  .count,
+  .group-size {
+    width: 56px;
+  }
+  .places {
+    display: flex;
+    flex-direction: row-reverse;
+    transform: rotate(180deg);
+  }
+}
+.space-contents {
+  padding: 2px 12px;
+  border-width: 0 4px 4px;
+  border-style: solid;
+  border-color: #8884;
+  min-width: min(375px, 100%);
+  max-width: 100%;
+
+  display: table;
+  table-layout: fixed;
+  border-spacing: 0 8px;
+}
+.space-info {
+  display: table-row;
+  > * {
+    display: table-cell;
+  }
+
+  :nth-child(2) {
+    width: 40%;
+  }
+  > span,
+  a {
+    white-space: nowrap;
+    padding-left: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    a {
+      color: #9e9eff;
+    }
+    a:visited {
+      color: #d0adf0;
+    }
+  }
+}
