@@ -33,12 +33,11 @@ interface APISpacesResponse {
   courtyard: TimeSlot[];
 }
 
-let busy = false;
 async function updateRoomAvailability() {
-  if (busy) return [];
+  if (isLoading()) return [];
   const dateStr = date().toISOString().split("T")[0];
 
-  busy = true;
+  setIsLoading(true);
   const response: APISpacesResponse = await fetch(
     API_BASE + "/api/space-availability?date=" + dateStr,
   ).then((x) => x.json());
@@ -50,7 +49,7 @@ async function updateRoomAvailability() {
     if (!roomTimes.includes(timeSlot.start)) roomTimes.push(timeSlot.start);
     roomTimes.push(timeSlot.end);
   });
-  busy = false;
+  setIsLoading(false);
 
   response.courtyard.forEach((timeSlot) => {
     if (!cslRoomMapping[timeSlot.itemId]) return;
@@ -209,6 +208,7 @@ function Empty() {
 }
 
 const [isMounted, setIsMounted] = createSignal(false);
+const [isLoading, setIsLoading] = createSignal(false);
 const [empty, setEmpty] = createSignal(false);
 const [date, setDate] = createSignal(new Date());
 const [times, setTimes] = createSignal<TimeSlotListing[]>([]);
@@ -259,9 +259,11 @@ export default function Spaces() {
         <Empty />
       ) : (
         <div class="content-wrapper spaces-wrapper">
-          {times().map((t, i) => (
-            <Availability time={t} index={i} />
-          ))}
+          <Show when={!isLoading()}>
+            {times().map((t, i) => (
+              <Availability time={t} index={i} />
+            ))}
+          </Show>
         </div>
       )}
     </>

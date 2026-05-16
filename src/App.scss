@@ -106,11 +106,21 @@ body,
 }
 
 .app-header {
+  --bg: white;
   display: flex;
   justify-content: center;
-  margin-block: 0 0.5em;
   font-size: 21px;
   text-align: center;
+  margin-block: -16px 0px;
+  padding-block: 16px 10px;
+  background: inherit;
+  box-shadow: 0 0 2px 3px var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  @media (prefers-color-scheme: dark) {
+    --bg: black;
+  }
 }
 
 .content-wrapper {
