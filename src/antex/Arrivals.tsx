@@ -108,80 +108,92 @@ interface BusRouteProps {
   route: BusRoute;
 }
 function BusRouteDisplay(props: BusRouteProps) {
-  const estimates2 = estimates().filter((est) => est.RouteID === props.route.RouteID);
-  const vehicleIDs = new Set(
-    estimates2.flatMap((e) => e.VehicleEstimates.map((ve) => ve.VehicleID)),
-  );
+  const averageMultiplier = createMemo(() => {
+    const estimates2 = estimates().filter((est) => est.RouteID === props.route.RouteID);
+    const vehicleIDs = new Set(
+      estimates2.flatMap((e) => e.VehicleEstimates.map((ve) => ve.VehicleID)),
+    );
 
-  const arrivalEstimateMultipliers = [];
+    const arrivalEstimateMultipliers = [];
 
-  for (const busID of vehicleIDs) {
-    // Last item is a duplicate of the first
-    const times = estimates2
-      .slice(0, -1)
-      .map((details) => {
-        const arrivalRaw = details.VehicleEstimates.find((ve) => ve.VehicleID === busID);
-        if (!arrivalRaw) return null;
-        const estimateRaw = details.ScheduledTimes.find((st) => st.AssignedVehicleId === busID);
-        const arrival = moment().add(arrivalRaw?.SecondsToStop, "s").toDate().getTime();
-        const estimate = moment(estimateRaw?.ArrivalTimeUTC).toDate().getTime();
+    for (const busID of vehicleIDs) {
+      // Last item is a duplicate of the first
+      const times = estimates2
+        .slice(0, -1)
+        .map((details) => {
+          const arrivalRaw = details.VehicleEstimates.find((ve) => ve.VehicleID === busID);
+          if (!arrivalRaw) return null;
+          const estimateRaw = details.ScheduledTimes.find((st) => st.AssignedVehicleId === busID);
+          const arrival = moment().add(arrivalRaw?.SecondsToStop, "s").toDate().getTime();
+          const estimate = moment(estimateRaw?.ArrivalTimeUTC).toDate().getTime();
 
-        return {
-          arrivalRaw,
-          estimateRaw,
-          arrival,
-          estimate,
-          arrivalRelative: arrivalRaw?.SecondsToStop,
-          name: routes.flatMap((r) => r.Stops).find((s) => s.RouteStopID === details.RouteStopID)
-            ?.SignVerbiage,
-        };
-      })
-      .filter((x) => !!x);
+          return {
+            arrivalRaw,
+            estimateRaw,
+            arrival,
+            estimate,
+            arrivalRelative: arrivalRaw?.SecondsToStop,
+            name: routes.flatMap((r) => r.Stops).find((s) => s.RouteStopID === details.RouteStopID)
+              ?.SignVerbiage,
+          };
+        })
+        .filter((x) => !!x);
 
-    times.sort((a, b) => a!.estimate - b!.estimate);
+      times.sort((a, b) => a!.estimate - b!.estimate);
 
-    // Times should be sorted before new properties are added
-    const times2 = times
-      .map((data, index) => {
-        const { arrivalRaw, arrival, estimate, name } = data!;
-        const nextArrivalRaw = times[(index + 1) % times.length]!.arrivalRaw;
-        const nextEstRaw = times[(index + 1) % times.length]!.estimateRaw;
-        const arrivalDiffRaw =
-          nextArrivalRaw && nextArrivalRaw.SecondsToStop - arrivalRaw.SecondsToStop;
-        // assume some time between intra-minute stops
-        const arrivalDiff = arrivalDiffRaw! > 0 ? arrivalDiffRaw : null;
-        let scheduleDiff =
-          moment.duration(moment(nextEstRaw?.ArrivalTimeUTC).diff(estimate)).asSeconds() ||
-          (30 as number | null);
-        if (scheduleDiff! < 0) scheduleDiff = null;
+      // Times should be sorted before new properties are added
+      const times2 = times
+        .map((data, index) => {
+          const { arrivalRaw, arrival, estimate, name } = data!;
+          const nextArrivalRaw = times[(index + 1) % times.length]!.arrivalRaw;
+          const nextEstRaw = times[(index + 1) % times.length]!.estimateRaw;
+          const arrivalDiffRaw =
+            nextArrivalRaw && nextArrivalRaw.SecondsToStop - arrivalRaw.SecondsToStop;
+          // assume some time between intra-minute stops
+          const arrivalDiff = arrivalDiffRaw! > 0 ? arrivalDiffRaw : null;
+          let scheduleDiff =
+            moment.duration(moment(nextEstRaw?.ArrivalTimeUTC).diff(estimate)).asSeconds() ||
+            (30 as number | null);
+          if (scheduleDiff! < 0) scheduleDiff = null;
 
-        return {
-          arrival,
-          estimate,
-          arrivalRelative: arrivalRaw?.SecondsToStop,
-          arrivalDiff,
-          scheduleDiff,
-          diffRatio: arrivalDiff && scheduleDiff && scheduleDiff / arrivalDiff,
-          name,
-        };
-      })
-      .filter((x) => x.arrivalRelative! > 0 && x.diffRatio);
+          return {
+            arrival,
+            estimate,
+            arrivalRelative: arrivalRaw?.SecondsToStop,
+            arrivalDiff,
+            scheduleDiff,
+            diffRatio: arrivalDiff && scheduleDiff && scheduleDiff / arrivalDiff,
+            name,
+          };
+        })
+        .filter((x) => x.arrivalRelative! > 0 && x.diffRatio);
 
-    const vehicleArrivalEstimateMultiplier =
-      times2.reduce((tot, curr) => tot + curr.diffRatio!, 0) / times2.length;
-    // estimates are never that much under; this indicates conditions like transitionary periods
-    if (vehicleArrivalEstimateMultiplier! > 0.75) {
-      arrivalEstimateMultipliers.push(vehicleArrivalEstimateMultiplier);
+      const vehicleArrivalEstimateMultiplier =
+        times2.reduce((tot, curr) => tot + curr.diffRatio!, 0) / times2.length;
+      // estimates are never that much under; this indicates conditions like transitionary periods
+      if (vehicleArrivalEstimateMultiplier! > 0.75) {
+        arrivalEstimateMultipliers.push(vehicleArrivalEstimateMultiplier);
+      }
     }
-  }
 
-  const averageMultiplier =
-    arrivalEstimateMultipliers.reduce((a, b) => a + b, 0) / arrivalEstimateMultipliers.length || 1;
+    const averageMultiplier =
+      arrivalEstimateMultipliers.reduce((a, b) => a + b, 0) / arrivalEstimateMultipliers.length ||
+      1;
+
+    return averageMultiplier;
+  });
+
   // Multiplier Debug: console.log(`Average multiplier for ${route.Description} is ${averageMultiplier}`)
   const fixedEstimates = createMemo(() => {
     const adjusted = estimates();
-    for (const estimate of adjusted.flatMap((est) => est.VehicleEstimates)) {
-      estimate.SecondsToStop *= averageMultiplier;
+    const estimatesRef = adjusted.flatMap((e) => e.VehicleEstimates);
+    const multiplier = averageMultiplier();
+    const maxSeconds = Math.max(...estimatesRef.map((e) => e.SecondsToStop));
+    for (const estimate of estimatesRef) {
+      const proportionalDiff =
+        1 / (1 + Math.E ** (2 - (20 * estimate.SecondsToStop) / maxSeconds)) || 0;
+      const stopMultiplier = (multiplier - 1) * proportionalDiff + 1;
+      estimate.SecondsToStop *= stopMultiplier;
     }
     return adjusted;
   });
